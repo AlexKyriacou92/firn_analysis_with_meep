@@ -10,6 +10,10 @@ from math import pi
 from numpy import rad2deg, deg2rad, sin, cos, sqrt, log, exp, log10
 import scipy.signal as sig
 
+nice = 1.78
+c_mGHz = 0.3
+nair = 1.0
+
 def butterBandpass(lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
     low = lowcut / nyq
@@ -68,3 +72,15 @@ def get_index_from_rxList(rxList, x, z):
         dr_list[i] = dr
     ii_rx = np.argmin(dr_list)
     return ii_rx
+
+def add_data_to_hdf(hdf_in, label, dataset):
+    '''
+    if label in hdf_in.keys():
+        hdf_in[label] = dataset
+    else:
+        hdf_in.create_dataset(label, data=dataset)
+    '''
+    #Check if label exists
+    check_bool = label in hdf_in.keys()
+    if check_bool == False:
+        hdf_in.create_dataset(label, data=dataset)
