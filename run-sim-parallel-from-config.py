@@ -300,16 +300,17 @@ if os.path.isfile(fname_out) == True:
     os.system('rm -f ' + fname_out)
 
 def add_data_to_hdf(hdf_in, label, dataset):
-    '''
-    if label in hdf_in.keys():
-        hdf_in[label] = dataset
-    else:
-        hdf_in.create_dataset(label, data=dataset)
-    '''
-    #Check if label exists
-    check_bool = label in hdf_in.keys()
-    if check_bool == False:
-        hdf_in.create_dataset(label, data=dataset)
+    # Check if dataset already exists
+    if label not in hdf_in:
+        ds = hdf_in.create_dataset(
+            label,
+            shape=dataset.shape,
+            dtype=dataset.dtype
+        )
+
+        # Collective MPI write
+        with ds.collective:
+            ds[:] = dataset
 
 # Open HDF5 File to Run Simulation
 with h5py.File(fname_out, 'a', driver='mpio', comm=MPI.COMM_WORLD) as output_hdf:
