@@ -435,6 +435,7 @@ def create_simulation_output(fname_out,settings,parallel_mode=False, comm=None):
             "zProfile": settings.zprof_in,
             "nProfile": settings.nprof_in
         }
+        '''
         for name, data in datasets.items():
             ds = hdf.create_dataset(name, shape=data.shape, dtype=data.dtype)
             if parallel_mode:
@@ -445,7 +446,18 @@ def create_simulation_output(fname_out,settings,parallel_mode=False, comm=None):
                         ds[0:0] = data[0:0]
             else:
                 ds[:] = data
+        '''
+        for name, data in datasets.items():
+            print(f"Rank {comm.rank}: creating {name}", flush=True)
 
+            ds = hdf.create_dataset(name, shape=data.shape, dtype=data.dtype)
+
+            print(f"Rank {comm.rank}: created {name}", flush=True)
+
+            with ds.collective:
+                ds[:] = data
+
+            print(f"Rank {comm.rank}: finished writing {name}", flush=True)
 def flush_receiver_buffers(
     pulse_r_ds,
     pulse_z_ds,
