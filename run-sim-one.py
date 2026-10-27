@@ -8,9 +8,7 @@ import meep as mp
 import os
 import time
 from functools import partial
-
 from simulation import set_simulation_cylinder, sim_settings, create_simulation_output, flush_receiver_buffers
-from simulation import get_amp_at_t
 
 print('Initiating Simulation of a pulse generated from a point source inside a modelled ice-sheet (range-independent)')
 def main(fname_config):
@@ -35,15 +33,27 @@ def main(fname_config):
         pulse_r_ds = output_hdf["rxPulses_r"]
         pulse_z_ds = output_hdf["rxPulses_z"]
 
-        receiver_callback = partial(
-            get_amp_at_t,
-            rxList_meep=rxList_meep,
-            pulse_r_buffer=pulse_r_buffer,
-            pulse_z_buffer=pulse_z_buffer,
-            state=state,
-            pulse_r_ds=pulse_r_ds,
-            pulse_z_ds=pulse_z_ds
-        )
+        def get_amp_at_t(sim):
+            nonlocal pulse_r_buffer, pulse_z_buffer, state
+            idx = state["buffer_index"]
+            # Sample Meep fields
+            for i, rx_pt in enumerate(rxList_meep):
+                pulse_r_buffer[i, idx] = sim.get_field_point(mp.Ex, rx_pt)
+                pulse_z_buffer[i, idx] = sim.get_field_point(mp.Ez, rx_pt)
+
+            state["buffer_index"] += 1
+            state["step_index"] += 1
+
+            # Write when the buffer is full
+            if state["buffer_index"] == pulse_r_buffer.shape[1]:
+                flush_receiver_buffers(
+                    pulse_r_ds,
+                    pulse_z_ds,
+                    pulse_r_buffer,
+                    pulse_z_buffer,
+                    state["buffer_index"]
+                )
+                state["buffer_index"] = 0
 
 
         #Initialize Simulation
@@ -69,14 +79,13 @@ def main(fname_config):
         tstart_run = time.time()
 
         # Running the Simulation with decimation
-        sim_dipole.run(mp.at_every(dt_C * decimation_factor, receiver_callback), until=t_end_meep)
+        sim_dipole.run(mp.at_every(dt_C * decimation_factor, get_amp_at_t), until=t_end_meep)
 
         # ========== Final flush for leftover buffer ==========
         if state["buffer_index"] > 0:
             print('Final flush: writing remaining ', state["buffer_index"], 'steps...')
             flush_receiver_buffers(pulse_r_ds, pulse_z_ds, pulse_r_buffer, pulse_z_buffer, state["buffer_index"])
 
-        #output_hdf.close()
         print('')
         tend_run = time.time()
         now = datetime.datetime.now()
@@ -91,4 +100,3 @@ if __name__ == "__main__":
     else:
         fname_config = 'config-example.txt'
     main(fname_config=fname_config)
-    #create_simulation_output(sim_settings_in=sim_settings_in)

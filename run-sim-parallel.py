@@ -8,11 +8,7 @@ from mpi4py import MPI
 import meep as mp
 import os
 import time
-#from functools import partial
-
 from simulation import set_simulation_cylinder, sim_settings, create_simulation_output, flush_receiver_buffers
-from simulation import get_amp_at_t
-from util import add_data_to_hdf
 
 print('Initiating Simulation of a pulse generated from a point source inside a modelled ice-sheet (range-independent)')
 def main(fname_config, comm):
@@ -48,24 +44,7 @@ def main(fname_config, comm):
 
         pulse_r_ds = output_hdf["rxPulses_r"]
         pulse_z_ds = output_hdf["rxPulses_z"]
-        '''
-        receiver_callback = partial(
-            get_amp_at_t,
-            rxList_meep=rxList_meep,
-            pulse_r_buffer=pulse_r_buffer,
-            pulse_z_buffer=pulse_z_buffer,
-            state=state,
-            pulse_r_ds=pulse_r_ds,
-            pulse_z_ds=pulse_z_ds
-        )
-        
-        def receiver_callback(sim, rxList_meep=rxList_meep,
-                              pulse_r_buffer=pulse_r_buffer, pulse_z_buffer=pulse_z_buffer,
-                              state=state, pulse_r_ds=pulse_r_ds, pulse_z_ds=pulse_z_ds):
-            return get_amp_at_t(sim, rxList_meep, pulse_r_buffer, pulse_z_buffer, state, pulse_r_ds, pulse_z_ds)
-        '''
-
-        def get_amp_at_t2(sim):
+        def get_amp_at_t(sim):
             nonlocal pulse_r_buffer, pulse_z_buffer, state
             idx = state["buffer_index"]
             # Sample Meep fields
@@ -91,11 +70,7 @@ def main(fname_config, comm):
 
         print('Initialize Simulation')
         tstart_initial = time.time()
-        '''        
-        with open(f"/tmp/meep_rank_{comm.rank}.log", "w") as f:
-            f.write("Entering init_sim\n")
-            f.flush()
-        '''
+
         sim_dipole.init_sim()
         print(
             f"Rank {comm.rank}: finished init_sim()",
@@ -120,8 +95,7 @@ def main(fname_config, comm):
         tstart_run = time.time()
 
         # Running the Simulation with decimation
-        #sim_dipole.run(mp.at_every(dt_C * decimation_factor, receiver_callback), until=t_end_meep)
-        sim_dipole.run(mp.at_every(dt_C * decimation_factor, get_amp_at_t2), until=t_end_meep)
+        sim_dipole.run(mp.at_every(dt_C * decimation_factor, get_amp_at_t), until=t_end_meep)
 
         # ========== Final flush for leftover buffer ==========
         if state["buffer_index"] > 0:
