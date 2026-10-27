@@ -58,11 +58,34 @@ def main(fname_config, comm):
             pulse_r_ds=pulse_r_ds,
             pulse_z_ds=pulse_z_ds
         )
-        '''
+        
         def receiver_callback(sim, rxList_meep=rxList_meep,
                               pulse_r_buffer=pulse_r_buffer, pulse_z_buffer=pulse_z_buffer,
                               state=state, pulse_r_ds=pulse_r_ds, pulse_z_ds=pulse_z_ds):
             return get_amp_at_t(sim, rxList_meep, pulse_r_buffer, pulse_z_buffer, state, pulse_r_ds, pulse_z_ds)
+        '''
+
+        def get_amp_at_t2(sim):
+            nonlocal pulse_r_buffer, pulse_z_buffer, state
+            idx = state["buffer_index"]
+            # Sample Meep fields
+            for i, rx_pt in enumerate(rxList_meep):
+                pulse_r_buffer[i, idx] = sim.get_field_point(mp.Ex, rx_pt)
+                pulse_z_buffer[i, idx] = sim.get_field_point(mp.Ez, rx_pt)
+
+            state["buffer_index"] += 1
+            state["step_index"] += 1
+
+            # Write when the buffer is full
+            if state["buffer_index"] == pulse_r_buffer.shape[1]:
+                flush_receiver_buffers(
+                    pulse_r_ds,
+                    pulse_z_ds,
+                    pulse_r_buffer,
+                    pulse_z_buffer,
+                    state["buffer_index"]
+                )
+                state["buffer_index"] = 0
 
         #Initialize Simulation
 
@@ -97,7 +120,8 @@ def main(fname_config, comm):
         tstart_run = time.time()
 
         # Running the Simulation with decimation
-        sim_dipole.run(mp.at_every(dt_C * decimation_factor, receiver_callback), until=t_end_meep)
+        #sim_dipole.run(mp.at_every(dt_C * decimation_factor, receiver_callback), until=t_end_meep)
+        sim_dipole.run(mp.at_every(dt_C * decimation_factor, get_amp_at_t2), until=t_end_meep)
 
         # ========== Final flush for leftover buffer ==========
         if state["buffer_index"] > 0:
