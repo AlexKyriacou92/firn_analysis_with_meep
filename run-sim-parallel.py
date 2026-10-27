@@ -8,7 +8,7 @@ from mpi4py import MPI
 import meep as mp
 import os
 import time
-from functools import partial
+#from functools import partial
 
 from simulation import set_simulation_cylinder, sim_settings, create_simulation_output, flush_receiver_buffers
 from simulation import get_amp_at_t
@@ -48,7 +48,7 @@ def main(fname_config, comm):
 
         pulse_r_ds = output_hdf["rxPulses_r"]
         pulse_z_ds = output_hdf["rxPulses_z"]
-
+        '''
         receiver_callback = partial(
             get_amp_at_t,
             rxList_meep=rxList_meep,
@@ -58,7 +58,11 @@ def main(fname_config, comm):
             pulse_r_ds=pulse_r_ds,
             pulse_z_ds=pulse_z_ds
         )
-
+        '''
+        def receiver_callback(sim, rxList_meep=rxList_meep,
+                              pulse_r_buffer=pulse_r_buffer, pulse_z_buffer=pulse_z_buffer,
+                              state=state, pulse_r_ds=pulse_r_ds, pulse_z_ds=pulse_z_ds):
+            return get_amp_at_t(sim, rxList_meep, pulse_r_buffer, pulse_z_buffer, state, pulse_r_ds, pulse_z_ds)
 
         #Initialize Simulation
 
@@ -67,7 +71,8 @@ def main(fname_config, comm):
         '''        
         with open(f"/tmp/meep_rank_{comm.rank}.log", "w") as f:
             f.write("Entering init_sim\n")
-            f.flush()'''
+            f.flush()
+        '''
         sim_dipole.init_sim()
         print(
             f"Rank {comm.rank}: finished init_sim()",

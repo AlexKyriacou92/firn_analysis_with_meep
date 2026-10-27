@@ -7,7 +7,7 @@ import configparser
 import meep as mp
 import os
 import time
-from functools import partial
+#from functools import partial
 from util import butterBandpassFilter, get_data, findNearest
 from util import nice, c_mGHz, nair
 
@@ -330,7 +330,12 @@ def set_simulation_cylinder(sim_settings_in):
     tspace_in_ns = sim_settings_in.tspace_in
     tspace_meep = sim_settings_in.tspace_meep
     sources_dipole = []
+    '''
     pulse_meep = partial(pulse_meep_func, pulse_in=pulse_in_ns, tspace_in=tspace_in_ns)
+    '''
+    def pulse_meep(t, pulse_in=pulse_in_ns, tspace_in=tspace_in_ns):
+        return pulse_meep_func(t, pulse_in, tspace_in)
+
     source1 = mp.Source(mp.CustomSource(src_func=pulse_meep),
                         component=mp.Ez,
                         center=mp.Vector3(sim_settings_in.sourceRange, 0, sourceDepth_meep))
