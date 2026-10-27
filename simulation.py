@@ -27,9 +27,8 @@ class sim_settings:
     Meep time parameters use Meep's internal units [meters].
     """
     def __init__(self, fname_config, fname_hdf=None):
-        if (fname_config is None) or (fname_hdf is None):
+        if (fname_config is None) and (fname_hdf is None):
             raise ValueError("Supply exactly one of fname_config or fname_hdf")
-
         self.config = None
         if fname_config is not None:
             config_file = os.path.join(os.path.dirname(__file__), fname_config)
