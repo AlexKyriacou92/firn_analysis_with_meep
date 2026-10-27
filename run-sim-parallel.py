@@ -43,12 +43,6 @@ def main(fname_config, comm):
     print("geometry:", sim_dipole.geometry)
     print("boundary_layers:", sim_dipole.boundary_layers)
 
-    tstart_initial = time.time()
-    sim_dipole.init_sim()
-    tend_initial = time.time()
-
-    print(f"Rank {comm.rank}: init_sim took {tend_initial - tstart_initial:.2f} s", flush=True)
-
     with h5py.File(fname_out, 'r+', driver='mpio', comm=comm) as output_hdf:
         print(f"Rank {comm.rank}: after HDF5 open", flush=True)
 
@@ -67,13 +61,14 @@ def main(fname_config, comm):
 
 
         #Initialize Simulation
+
         print('Initialize Simulation')
         tstart_initial = time.time()
+        '''        
         with open(f"/tmp/meep_rank_{comm.rank}.log", "w") as f:
             f.write("Entering init_sim\n")
-            f.flush()
-
-
+            f.flush()'''
+        sim_dipole.init_sim()
         print(
             f"Rank {comm.rank}: finished init_sim()",
             flush=True
