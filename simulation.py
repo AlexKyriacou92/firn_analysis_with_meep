@@ -430,6 +430,8 @@ def create_simulation_output(fname_out,settings,parallel_mode=False, comm=None):
                 ds[:] = data
 
             print(f"Rank {comm.rank}: finished writing {name}", flush=True)
+
+'''
 def flush_receiver_buffers(
     pulse_r_ds,
     pulse_z_ds,
@@ -455,6 +457,31 @@ def flush_receiver_buffers(
     pulse_z_ds[:, old_size:new_size] = (
         pulse_z_buffer[:, :n_samples]
     )
+'''
+
+def flush_receiver_buffers(
+    pulse_r_ds,
+    pulse_z_ds,
+    pulse_r_buffer,
+    pulse_z_buffer,
+    n_samples
+):
+    if n_samples == 0:
+        return
+
+    nRx = pulse_r_buffer.shape[0]
+
+    old_size = pulse_r_ds.shape[1]
+    new_size = old_size + n_samples
+
+    pulse_r_ds.resize((nRx, new_size))
+    pulse_z_ds.resize((nRx, new_size))
+
+    with pulse_r_ds.collective:
+        pulse_r_ds[:, old_size:new_size] = pulse_r_buffer[:, :n_samples]
+
+    with pulse_z_ds.collective:
+        pulse_z_ds[:, old_size:new_size] = pulse_z_buffer[:, :n_samples]
 
 def get_amp_at_t(
     sim,
