@@ -249,8 +249,8 @@ def nProfile_1exp(R, n_ice, n_surf, k):
         z_depth = -1 * z
         return mp.Medium(index=n_ice + (n_surf-n_ice)*math.exp(-k * z_depth), D_conductivity=0)
 
-def pulse_meep_func(t, pulse_in, t_space_in):
-    tspace_m= t_space_in * c_mGHz # Meep Time Domain - units of distance
+def pulse_meep_func(t, pulse_in, tspace_in):
+    tspace_m = tspace_in * c_mGHz # Meep Time Domain - units of distance
     if t < max(tspace_m):
         ii = findNearest(tspace_m, t)
         return pulse_in[ii]
@@ -303,29 +303,8 @@ def set_simulation_cylinder(sim_settings_in):
             else:
                 z_depth = -1 * z
                 return mp.Medium(index=n_ice + (n_surf - n_ice) * math.exp(-k * z_depth), D_conductivity=0)
-    '''
-    if sim_settings_in.ref_index_data_mode == "data":
-        def nProfile_in(R):
-            return nProfile_data(
-                R,
-                zprof_data=sim_settings_in.zprof_in,
-                nprof_data=sim_settings_in.nprof_in,
-                z_shift=Delta_Z,
-                iceDepth=iceDepth
-            )
-    elif sim_settings_in.ref_index_data_mode == "1exp":
-        def nProfile_in(R):
-            return nProfile_1exp(
-                R,
-                n_ice=sim_settings_in.n_ice,
-                n_surf=sim_settings_in.n_surf,
-                k=sim_settings_in.k_ref
-            )
     else:
-        print('Unknown refractive-index mode, must be data or 1exp')
-        raise ValueError()
-    '''
-
+        raise ValueError("Unknown index data mode, must be data or 1exp")
     ##**********************Simulation Setup*******************************##
     dimensions = mp.CYLINDRICAL
     if sim_settings_in.absorb_mode == 1:
@@ -435,18 +414,6 @@ def create_simulation_output(fname_out,settings,parallel_mode=False, comm=None):
             "zProfile": settings.zprof_in,
             "nProfile": settings.nprof_in
         }
-        '''
-        for name, data in datasets.items():
-            ds = hdf.create_dataset(name, shape=data.shape, dtype=data.dtype)
-            if parallel_mode:
-                with ds.collective:
-                    if comm.rank == 0:
-                        ds[:] = data
-                    else:
-                        ds[0:0] = data[0:0]
-            else:
-                ds[:] = data
-        '''
         for name, data in datasets.items():
             print(f"Rank {comm.rank}: creating {name}", flush=True)
 
