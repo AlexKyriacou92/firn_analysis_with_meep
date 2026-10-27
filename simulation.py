@@ -7,16 +7,12 @@ import configparser
 import meep as mp
 import os
 import time
-#from functools import partial
 from util import butterBandpassFilter, get_data, findNearest
 from util import nice, c_mGHz, nair
 
 import os
 import configparser
 import numpy as np
-
-# Assumes these are already imported from util:
-# findNearest, butterBandpassFilter, get_data
 
 class sim_settings:
     """
@@ -328,11 +324,7 @@ def set_simulation_cylinder(sim_settings_in):
     # Define Signal
     pulse_in_ns = sim_settings_in.pulse_in
     tspace_in_ns = sim_settings_in.tspace_in
-    tspace_meep = sim_settings_in.tspace_meep
     sources_dipole = []
-    '''
-    pulse_meep = partial(pulse_meep_func, pulse_in=pulse_in_ns, tspace_in=tspace_in_ns)
-    '''
     def pulse_meep(t, pulse_in=pulse_in_ns, tspace_in=tspace_in_ns):
         return pulse_meep_func(t, pulse_in, tspace_in)
 
@@ -431,34 +423,6 @@ def create_simulation_output(fname_out,settings,parallel_mode=False, comm=None):
 
             print(f"Rank {comm.rank}: finished writing {name}", flush=True)
 
-'''
-def flush_receiver_buffers(
-    pulse_r_ds,
-    pulse_z_ds,
-    pulse_r_buffer,
-    pulse_z_buffer,
-    n_samples
-):
-    if n_samples == 0:
-        return
-
-    nRx = pulse_r_buffer.shape[0]
-
-    old_size = pulse_r_ds.shape[1]
-    new_size = old_size + n_samples
-
-    pulse_r_ds.resize((nRx, new_size))
-    pulse_z_ds.resize((nRx, new_size))
-
-    pulse_r_ds[:, old_size:new_size] = (
-        pulse_r_buffer[:, :n_samples]
-    )
-
-    pulse_z_ds[:, old_size:new_size] = (
-        pulse_z_buffer[:, :n_samples]
-    )
-'''
-
 def flush_receiver_buffers(
     pulse_r_ds,
     pulse_z_ds,
@@ -482,33 +446,3 @@ def flush_receiver_buffers(
 
     with pulse_z_ds.collective:
         pulse_z_ds[:, old_size:new_size] = pulse_z_buffer[:, :n_samples]
-
-def get_amp_at_t(
-    sim,
-    rxList_meep,
-    pulse_r_buffer,
-    pulse_z_buffer,
-    state,
-    pulse_r_ds,
-    pulse_z_ds
-):
-    idx = state["buffer_index"]
-
-    # Sample Meep fields
-    for i, rx_pt in enumerate(rxList_meep):
-        pulse_r_buffer[i, idx] = sim.get_field_point(mp.Ex, rx_pt)
-        pulse_z_buffer[i, idx] = sim.get_field_point(mp.Ez, rx_pt)
-
-    state["buffer_index"] += 1
-    state["step_index"] += 1
-
-    # Write when the buffer is full
-    if state["buffer_index"] == pulse_r_buffer.shape[1]:
-        flush_receiver_buffers(
-            pulse_r_ds,
-            pulse_z_ds,
-            pulse_r_buffer,
-            pulse_z_buffer,
-            state["buffer_index"]
-        )
-        state["buffer_index"] = 0
