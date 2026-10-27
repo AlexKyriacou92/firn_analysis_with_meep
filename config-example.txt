@@ -18,6 +18,7 @@ data_file = ref_profiles/nProf_NP_deep.txt
 [SOURCE]
 mode = impulse
 startTime = 50.0
+stopTime = 1000.0
 sourceDepth = 5.0
 sourceRange = 0.0
 freq_LP = 0.3
