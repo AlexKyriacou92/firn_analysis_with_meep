@@ -427,15 +427,24 @@ def create_simulation_output(fname_out,settings,parallel_mode=False, comm=None):
         hdf.attrs["pad"] = settings.pad
         hdf.attrs["absorb_mode"] = settings.absorb_mode
 
-        # Only if dpml is actually defined in settings
-        #hdf.attrs["dpml"] = settings.dpml
-
-        # Here I save the pre-defined data
-        hdf.create_dataset("txPulse", data=settings.pulse_in) # Trasnmitter Pulse
-        hdf.create_dataset("tspace_tx", data=settings.tspace_in) # Transmitter Time Space
-        hdf.create_dataset("rxList", data=settings.rxList) # Receiver Array
-        hdf.create_dataset("zProfile", data=settings.zprof_in) # Ref. Index depths
-        hdf.create_dataset("nProfile", data=settings.nprof_in) # Ref. Index values
+        # Save the pre-defined data
+        datasets = {
+            "txPulse": settings.pulse_in,
+            "tspace_tx": settings.tspace_in,
+            "rxList": settings.rxList,
+            "zProfile": settings.zprof_in,
+            "nProfile": settings.nprof_in
+        }
+        for name, data in datasets.items():
+            ds = hdf.create_dataset(name, shape=data.shape, dtype=data.dtype)
+            if parallel_mode:
+                with ds.collective:
+                    if comm.rank == 0:
+                        ds[:] = data
+                    else:
+                        ds[0:0] = data[0:0]
+            else:
+                ds[:] = data
 
 def flush_receiver_buffers(
     pulse_r_ds,
