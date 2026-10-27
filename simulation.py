@@ -27,19 +27,74 @@ class sim_settings:
     Meep time parameters use Meep's internal units [meters].
     """
     def __init__(self, fname_config):
-        # Read configuration file
-        config_file = os.path.join(
-            os.path.dirname(__file__), fname_config
-        )
-        self.config = configparser.ConfigParser()
-        if not self.config.read(config_file):
-            raise FileNotFoundError(f"Could not read configuration file: {config_file}")
-        # Initialize in dependency order
-        self.set_general_from_config()
-        self.set_geometry_from_config()
-        self.set_source_from_config()
-        self.set_receivers_from_config()
-        self.set_ref_index_from_config()
+        if (fname_config is None) == (fname_hdf is None):
+            raise ValueError("Supply exactly one of fname_config or fname_hdf")
+
+        self.config = None
+        if fname_config is not None:
+            config_file = os.path.join(os.path.dirname(__file__), fname_config)
+            self.config = configparser.ConfigParser()
+            if not self.config.read(config_file):
+                raise FileNotFoundError(f"Could not read configuration file: {config_file}")
+            self.set_general_from_config()
+            self.set_geometry_from_config()
+            self.set_source_from_config()
+            self.set_receivers_from_config()
+            self.set_ref_index_from_config()
+        else:
+            self.set_from_hdf(fname_hdf)
+
+    def set_from_hdf(self, fname_hdf):
+        """Restore settings from an output produced by create_simulation_output."""
+        with h5py.File(fname_hdf, "r") as f:
+            attrs = f.attrs
+            self.iceDepth = float(attrs["iceDepth"])
+            self.iceRange = float(attrs["iceRange"])
+            self.airHeight = float(attrs["airHeight"])
+            self.boreholeRadius = float(attrs["boreholeRadius"])
+            self.pad = float(attrs["pad"])
+            self.resolution = float(attrs["res"])
+            self.absorb_mode = int(attrs["absorb_mode"])
+            self.sourceDepth = float(attrs["sourceDepth"])
+            self.sourceRange = float(attrs["sourceRange"])
+            self.decimation_factor = float(attrs["decimation_factor"])
+            self.n_buffer = int(attrs["n_buffer"])
+
+            self.dt_meep = float(attrs["dt_meep"])
+            self.dt_ns = float(attrs["dt_ns_res"])
+            self.dt_ns_deci = float(attrs["dt"])
+            self.dt_C = self.dt_meep
+            self.mpp = 1.0 / self.resolution
+            self.S_courant = float(attrs.get("S_courant", self.dt_meep * self.resolution))
+
+            # Legacy files did not record rangeBuffer or cutoff_factor.
+            # Defaults below reproduce the configuration defaults, but may
+            # differ from a legacy run that explicitly overrode them.
+            self.rangeBuffer = float(attrs.get("rangeBuffer", self.pad))
+            self.cutoff_factor = float(attrs.get("cutoff_factor", 1.1))
+            self.t_end_meep = float(attrs.get("t_end_meep", self.cutoff_factor * nice * self.iceRange))
+            self.t_end_ns = self.t_end_meep / c_mGHz
+            self.nSteps = int(self.t_end_meep / self.dt_meep)
+
+            self.pulse_in = f["txPulse"][:]
+            self.tspace_in = f["tspace_tx"][:]
+            self.tspace_meep = self.tspace_in * c_mGHz
+            self.nSamples_in = len(self.pulse_in)
+            self.rxList = np.atleast_2d(f["rxList"][:])
+            if self.rxList.shape[1] != 2:
+                raise ValueError("Receiver positions must have shape (nRx, 2)")
+            self.nRx = len(self.rxList)
+            self.zprof_in = f["zProfile"][:]
+            self.nprof_in = f["nProfile"][:]
+
+            # Saved arrays suffice to reproduce the original material profile.
+            # The original analytic/data model cannot be inferred from old files.
+            self.ref_index_data_mode = "data"
+            self.signal_mode = "data"
+            self.rx_data_defined = True
+            self.path2sim = os.path.dirname(os.path.abspath(fname_hdf))
+            self.fname_prefix = str(attrs.get("prefix", os.path.basename(fname_hdf).removesuffix(".h5")))
+
     def set_general_from_config(self):
         settings = self.config["SETTINGS"]
         self.path2sim = settings["path2output"]
