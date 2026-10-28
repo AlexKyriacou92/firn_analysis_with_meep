@@ -51,7 +51,7 @@ class cluster_settings:
             raise ValueError('hours must be greater than 0')
 
 
-def create_meep_job_from_config(fname_config):
+def create_meep_job_from_config(fname_config, override_bool):
     cluster_settings_in = cluster_settings(fname_config)
     config = configparser.ConfigParser()
     config.read(fname_config)
@@ -64,10 +64,11 @@ def create_meep_job_from_config(fname_config):
     command = mpi + ' -n ' + str(cluster_settings_in.tasks) + ' ' + operator + ' ' + script + ' ' + arg
 
     fname_shell = prefix + ".sh"
-    i = 1
-    while os.path.exists(fname_shell):
-        fname_shell = f"{prefix}-{i}.sh"
-        i += 1
+    if override_bool == False:
+        i = 1
+        while os.path.exists(fname_shell):
+            fname_shell = f"{prefix}-{i}.sh"
+            i += 1
     jobname = os.path.splitext(os.path.basename(fname_shell))[0]
     fname_out = jobname + ".out"
 
