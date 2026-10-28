@@ -1,7 +1,7 @@
 [CLUSTER]
 NODES_MIN = 1
 NODES_MAX = 1
-PARTITION = serial
+PARTITION = cpu
 DAYS = 0
 HOURS = 1
 TASKS = 8
@@ -11,7 +11,7 @@ ACCOUNT = PAS1968
 MAIL = alexander.luke.kyriacou@ulb.be
 
 [JOB]
-prefix = example_job
+prefix = test_job
 mpi = mpirun
 operator = python
 script = run-sim-parallel.py
