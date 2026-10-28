@@ -68,7 +68,7 @@ class simulation_reader:
         rx_spec_out = self.rxSpectra_z[ii_rx]
         return rx_spec_out
 
-    def get_rx_spec_z_r(self, x_rx, z_rx):
+    def get_rx_spec_r(self, x_rx, z_rx):
         ii_rx = get_index_from_rxList(self.rxList, x_rx, z_rx)
         rx_spec_out = self.rxSpectra_r[ii_rx]
         return rx_spec_out
