@@ -389,5 +389,3 @@ python -c "import meep as mp; print(mp.__version__)"
 # Run inside a suitable Slurm compute allocation
 mpiexec -n 4 python simulation.py
 ```
-
-**Final status:** Parallel Meep 1.35.0 successfully installed and tested on OSC Cardinal, October 2026.
