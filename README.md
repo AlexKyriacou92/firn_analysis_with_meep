@@ -37,7 +37,7 @@ mpirun -n 4 python run-sim-parallel.py config-example.txt
 ```
 The number of MPI processes should be adjusted according to the available computational resources.
 
-If running on a cluster you will first need to create a sh script (i.e. ```test-job.sh```, and submit it to the cluster with SLURM:
+If running on a cluster you will first need to create a sh script (i.e. ```example-job.sh```, and submit it to the cluster with SLURM:
 You can do this using ```create_job.py```
 ```
 python create_job.py config.cluster.txt <submit_int> <override_int>
@@ -45,7 +45,7 @@ python create_job.py config.cluster.txt <submit_int> <override_int>
 
 The latter two arguments:
 - submit_int = 0 just creates the shell script, while submit_int = 1 creates and submits it with sbatch. I recommend settings this to its default of 0
-- override_int = 0 means that if a shell script of the same name already exists, you will create a new one with a number appended to it, i.e. test-job-1.sh. override_int = 1 will over-write the exisitng shell script
+- override_int = 0 means that if a shell script of the same name already exists, you will create a new one with a number appended to it, i.e. example-job-1.sh. override_int = 1 will over-write the exisitng shell script
 
 Your shell script should look something like this:
 ```
@@ -66,7 +66,7 @@ mpirun -n 8 python run-sim-parallel.py config-in.txt
 Finally you submit the job to cluster using:
 
 ```
-sbatch test-job.sh
+sbatch example-job.sh
 ```
 
 The simulation on config-example.txt, using 26 cores on cluster (2 GB) each should take around 2-3 hours to complete
@@ -101,4 +101,4 @@ Simulation results are saved in HDF5 format, including the source waveform, rece
 ## Status
 This code is under active development. I will be updating the documentation over time.
 Users should independently validate simulation results for their intended applications.
-For any issues: please contact me at alexander.luke.kyriacou@ulb.be
+For any issues, comments or suggestions: please contact me at alexander.luke.kyriacou@ulb.be

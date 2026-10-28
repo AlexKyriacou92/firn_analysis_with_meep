@@ -11,8 +11,8 @@ ACCOUNT = PASxxxxx
 MAIL = myemail.edu
 
 [JOB]
-prefix = test_job
+prefix = example-job
 mpi = mpirun
 operator = python
 script = run-sim-parallel.py
-arg = config-in.txt
+arg = config-example.txt
