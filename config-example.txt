@@ -23,18 +23,15 @@ sourceDepth = 5.0
 sourceRange = 0.0
 freq_LP = 0.3
 freq_HP = 0.08
-order = 5
-#dthetaV = 4.0
-#showerEnergy=1e18
-#attenuationEquivalent=500.
+order = 4
 
 [RECEIVER]
-data_defined = True
+data_defined = False
 rx_list = rx_list_80m.txt
-rx_x_min = 10
-rx_x_max = 100
+rx_x_min = 5
+rx_x_max = 80
 rx_dx = 5
-rx_z_min = 10
-rx_z_max = 100
-rx_dz = 4
+rx_z_min = -4
+rx_z_max = 80
+rx_dz = 2
 n_buffer = 5
