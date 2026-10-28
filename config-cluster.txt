@@ -7,8 +7,8 @@ HOURS = 1
 TASKS = 8
 CPUS_PER_TASK = 1
 MEMORY_PER_CPU = 2000
-ACCOUNT = PAS1968
-MAIL = alexander.luke.kyriacou@ulb.be
+ACCOUNT = PASxxxxx
+MAIL = myemail.edu
 
 [JOB]
 prefix = test_job

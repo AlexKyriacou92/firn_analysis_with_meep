@@ -16,10 +16,10 @@ See [Installation.md](Installation.md) for detailed instructions on installing p
 ## Cluster Settings
 Before running a simulation (see below), you need to edit the cluster settings in: config-cluster.txt
 If running on OSC, you need to have a project account to use the resources, defined here:
-`ACCOUNT = PAS1968`
+`ACCOUNT = PASxxx`
 You need to edit this to the project account that you are using.
 Also change:
-`MAIL = alexander.luke.kyriacou@ulb.be` to your email
+`MAIL = myemail.edu` to your email
 You will need to check what partitions are available and appropriate for your application:
 i.e. `PARTITION = cpu`
 
@@ -52,12 +52,12 @@ Your shell script should look something like this:
 #!/bin/sh
 #SBATCH --job-name=test_job
 #SBATCH --partition=cpu
-#SBATCH --time=1-0:0:0
+#SBATCH --time=0-1:0:0
 #SBATCH --nodes=1
 #SBATCH --ntasks=8
 #SBATCH --cpus-per-task=1
-#SBATCH --account=PAS1968
-#SBATCH --mail-user=alexander.luke.kyriacou@ulb.be
+#SBATCH --account=PASxxxxx
+#SBATCH --mail-user=myemail.edu
 #SBATCH --mem-per-cpu=2000 # in MB
 #SBATCH -o test_job.out
 mpirun -n 8 python run-sim-parallel.py config-in.txt
@@ -68,6 +68,8 @@ Finally you submit the job to cluster using:
 ```
 sbatch test-job.sh
 ```
+
+The simulation on config-example.txt, using 26 cores on cluster (2 GB) each should take around 2-3 hours to complete
 
 
 ## Code structure
@@ -90,10 +92,13 @@ These are controlled using two config files
 #### Plotting and Analysis Scripts
 - `plot-pulses.ipynb` - example of how to read data and generate basic plots, i.e. the geomtery, the source ande receiver waveforms
 
-## Output
+#### Other
+- 'example-job.sh' - an example shell script
 
+## Output
 Simulation results are saved in HDF5 format, including the source waveform, receiver positions, refractive-index profile, and recorded radial and vertical electric-field components.
 
 ## Status
-This code is under active development. Users should independently validate simulation results for their intended applications.
+This code is under active development. I will be updating the documentation over time.
+Users should independently validate simulation results for their intended applications.
 For any issues: please contact me at alexander.luke.kyriacou@ulb.be
