@@ -1,14 +1,14 @@
 [SETTINGS]
-prefix = summit_test_parallel
-path2output = test
+prefix = example-sim-NP
+path2output = example
 S_courant = 0.5
 
 [GEOMETRY]
-iceDepth = 85.0
-airHeight = 15.0
-iceRange = 85.0
+iceDepth = 50.0
+airHeight = 5.0
+iceRange = 50.0
 boreholeRadius = 0.15
-pad = 100
+pad = 60
 resolution = 40
 
 [REFRACTIVE INDEX]
@@ -28,10 +28,10 @@ order = 4
 [RECEIVER]
 data_defined = False
 rx_list = rx_list_80m.txt
-rx_x_min = 5
-rx_x_max = 80
-rx_dx = 5
-rx_z_min = -4
-rx_z_max = 80
-rx_dz = 2
+rx_x_min = 10
+rx_x_max = 50
+rx_dx = 10
+rx_z_min = -5
+rx_z_max = 55
+rx_dz = 5
 n_buffer = 5
