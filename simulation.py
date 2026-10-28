@@ -181,7 +181,7 @@ class sim_settings:
 
         if self.rx_data_defined:
             self.fname_rx_list = receiver["rx_list"]
-            self.rxList = np.genfromtxt(self.fname_rx_list )
+            self.rxList = np.genfromtxt(self.fname_rx_list)
         else:
             rx_x_min = receiver.getfloat("rx_x_min")
             rx_x_max = receiver.getfloat("rx_x_max")
