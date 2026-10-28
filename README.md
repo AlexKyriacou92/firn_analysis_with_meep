@@ -87,16 +87,25 @@ These are controlled using two config files
 - `reader.py` — Reading and processing simulation output.
 - `util.py` — Utility functions, including signal processing.
 - `cluster.py` - Cluster job utilities.
-- `create_job.py` - creates sh script 
+- `create_job.py` - creates sh script
+
+#### Refractive Index example:
+- `ref_profiles/nProf_NP_deep.txt` - A text file defining a refractive index profile based on density measurements taken with a Neutron Scattering Probe in 2003 (Hawley, Morris & McConnel 2008) (see https://www.cambridge.org/core/journals/journal-of-glaciology/article/rapid-techniques-for-determining-annual-accumulation-applied-at-summit-greenland/96F86ED8AC87EB6B578E5021229CB37B).
+Assuming n = 1 + 0.845 rho / [g/cm^3]
 
 #### Plotting and Analysis Scripts
-- `plot-pulses.ipynb` - example of how to read data and generate basic plots, i.e. the geomtery, the source ande receiver waveforms
+- `plot-pulses.ipynb` - example of how to read data and generate basic plots, i.e. the geometry, the source and receiver waveforms. Reads from the example simulation output: `example/example-sim-NP_z_tx_5.0_buffer.h5` (see below)
 
 #### Other
-- 'example-job.sh' - an example shell script
+- 'example-job.sh` - an example shell script
 
 ## Output
 Simulation results are saved in HDF5 format, including the source waveform, receiver positions, refractive-index profile, and recorded radial and vertical electric-field components.
+
+#### Example:
+An example simulation output:
+- `example/example-sim-NP_z_tx_5.0_buffer.h5`
+Using `ref_profiles/nProf_NP_deep.txt` as the ref. index model, a source located at 5 m depth, and a geometry of 50 m x 50 m
 
 ## Status
 This code is under active development. I will be updating the documentation over time.
