@@ -15,38 +15,36 @@ c_mGHz = 0.3
 nair = 1.0
 
 def butterBandpass(lowcut, highcut, fs, order=5):
-    nyq = 0.5 * fs
-    low = lowcut / nyq
-    high = highcut / nyq
-    b, a = butter(order, [low, high], btype='band')
-    return b, a
+    return sig.butter(
+        order, [lowcut, highcut],
+        btype='bandpass', fs=fs, output='sos'
+    )
 
 def butterBandpassFilter(data, lowcut, highcut, fs, order=3):
-    b, a = butterBandpass(lowcut, highcut, fs, order=order)
-    y = lfilter(b, a, data)
-    return y
+    sos = butterBandpass(lowcut, highcut, fs, order=order)
+    return sig.sosfilt(sos, data)
+
 
 def butterHighpass(cutoff, fs, order=5):
-    nyq = 0.5 * fs
-    normal_cutoff = cutoff / nyq
-    b, a = sig.butter(order, normal_cutoff, btype='high', analog=False)
-    return b, a
+    return sig.butter(
+        order, cutoff,
+        btype='highpass', fs=fs, output='sos'
+    )
 
 def butterHighpassFilter(data, cutoff, fs, order=5):
-    b, a = butterHighpass(cutoff, fs, order=order)
-    y = sig.filtfilt(b, a, data)
-    return y
+    sos = butterHighpass(cutoff, fs, order=order)
+    return sig.sosfiltfilt(sos, data)
+
 
 def butterLowpass(highcut, fs, order=5):
-    nyq = 0.5 * fs
-    high = highcut / nyq
-    b, a = butter(order, high, btype='low')
-    return b, a
+    return sig.butter(
+        order, highcut,
+        btype='lowpass', fs=fs, output='sos'
+    )
 
 def butterLowpassFilter(data, highcut, fs, order=3):
-    b, a = butterLowpass(highcut, fs, order=order)
-    y = lfilter(b, a, data)
-    return y
+    sos = butterLowpass(highcut, fs, order=order)
+    return sig.sosfilt(sos, data)
 
 def findNearest(array, value):
     array = np.asarray(array, dtype='complex')
