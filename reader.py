@@ -35,7 +35,7 @@ class simulation_reader:
         self.txPulse = self.settings.pulse_in
         self.tspace_tx = self.settings.tspace_in
         self.nSamples_tx = len(self.txPulse)
-        self.fspace_tx = np.fft.rfftfreq(self.nSamples_tx, self.dt)
+        self.fspace_tx = np.fft.rfftfreq(self.nSamples_tx, self.settings.dt_ns)
         self.txSpectra = np.fft.rfft(self.txPulse)
 
 
