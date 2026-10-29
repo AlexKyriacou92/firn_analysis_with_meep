@@ -1,0 +1,38 @@
+[SETTINGS]
+prefix = cr_analysis_test
+path2output = cr_analysis_test/test_sims
+S_courant = 0.5
+
+[GEOMETRY]
+iceDepth = 110.0
+airHeight = 10.0
+iceRange = 210.0
+boreholeRadius = 0.0
+pad = 100
+resolution = 40
+
+[REFRACTIVE INDEX]
+mode = data
+data_file = ref_profiles/nProf_NP_deep.txt
+
+[SOURCE]
+mode = impulse
+startTime = 50.0
+stopTime = 1000.0
+sourceDepth = 5.0
+sourceRange = 0.0
+freq_LP = 0.3
+freq_HP = 0.08
+order = 4
+
+[RECEIVER]
+data_defined = True
+rx_list = cr_analysis/rx_list_cr_analysis_1.txt
+rx_x_min = 10
+rx_x_max = 80
+rx_dx = 5
+rx_z_min = -4
+rx_z_max = 80
+rx_dz = 2
+n_buffer = 1000
+decimation_factor = 10

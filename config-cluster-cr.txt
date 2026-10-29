@@ -1,0 +1,18 @@
+[CLUSTER]
+NODES_MIN = 1
+NODES_MAX = 1
+PARTITION = cpu
+DAYS = 1
+HOURS = 12
+TASKS = 40
+CPUS_PER_TASK = 1
+MEMORY_PER_CPU = 2000
+ACCOUNT = PAS1968
+MAIL = alexander.luke.kyriacou@ulb.be
+
+[JOB]
+prefix = cr-test-job
+mpi = mpirun
+operator = python
+script = run-sim-parallel.py
+arg = config-cr_analysis.txt
